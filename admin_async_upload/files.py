@@ -8,7 +8,7 @@ from django.utils.functional import cached_property
 from admin_async_upload.storage import ResumableStorage
 
 
-class ResumableFile(object):
+class ResumableFile:
     """
     Handles file saving and processing.
 
