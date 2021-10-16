@@ -11,6 +11,7 @@ from admin_async_upload.storage import ResumableStorage
 class ResumableFile(object):
     """
     Handles file saving and processing.
+
     It must only have access to chunk storage where it saves file chunks.
     When all chunks are uploaded it collects and merges them returning temporary file pointer
     that can be used to save the complete file to persistent storage.
@@ -39,11 +40,7 @@ class ResumableFile(object):
 
     @property
     def storage_filename(self):
-        return self.resumable_storage.full_filename(self.filename, self.upload_to)
-
-    @property
-    def upload_to(self):
-        return self.field.upload_to
+        return self.resumable_storage.full_filename(self.filename, self.field.upload_to)
 
     @property
     def chunk_exists(self):

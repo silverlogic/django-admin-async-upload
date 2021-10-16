@@ -16,6 +16,7 @@ class ResumableBaseWidget(FileInput):
 
     def render(self, name, value, attrs=None, **kwargs):
         persistent_storage = ResumableStorage().get_persistent_storage()
+
         if value:
             if isinstance(value, FieldFile):
                 value_name = value.name
@@ -23,7 +24,6 @@ class ResumableBaseWidget(FileInput):
                 value_name = value
             file_name = value
             file_url = mark_safe(persistent_storage.url(value_name))
-
         else:
             file_name = ""
             file_url = ""

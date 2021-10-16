@@ -1,12 +1,12 @@
 import datetime
 import posixpath
 
-from django.core.files.storage import get_storage_class
+from django.core.files.storage import get_storage_class, Storage
 from django.conf import settings
 from django.utils.encoding import force_text, force_str
 
 
-class ResumableStorage(object):
+class ResumableStorage(Storage):
     def __init__(self):
         self.persistent_storage_class_name = getattr(
             settings, "ADMIN_RESUMABLE_STORAGE", None
@@ -43,9 +43,10 @@ class ResumableStorage(object):
         return storage_class(*args, **kwargs)
 
     def full_filename(self, filename, upload_to):
-        if callable(upload_to):
-            upload_to = upload_to()
-
         dirname = force_text(datetime.datetime.now().strftime(force_str(upload_to)))
+        print("####")
+        print(f"{force_str(upload_to)}")
+        print(f"###### {dirname}")
         filename = posixpath.join(dirname, filename)
+        print(f"###### {filename}")
         return self.get_persistent_storage().generate_filename(filename)
