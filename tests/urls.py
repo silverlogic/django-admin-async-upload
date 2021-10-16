@@ -5,14 +5,17 @@ from django.conf import settings
 
 
 urlpatterns = [
-    url(r'^admin_resumable/', include('admin_async_upload.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r"^admin_async_upload/", include("admin_async_upload.urls")),
+    url(r"^admin/", include(admin.site.urls)),
 ]
 
 
 if settings.DEBUG:
     # static files (images, css, javascript, etc.)
     urlpatterns += [
-        (r'^media/(?P<path>.*)$', django.views.static.serve,
-            {'document_root': settings.MEDIA_ROOT})
+        (
+            r"^media/(?P<path>.*)$",
+            django.views.static.serve,
+            {"document_root": settings.MEDIA_ROOT},
+        )
     ]

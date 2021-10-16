@@ -11,8 +11,8 @@ from admin_async_upload.storage import ResumableStorage
 
 
 class ResumableBaseWidget(FileInput):
-    template_name = 'admin_resumable/admin_file_input.html'
-    clear_checkbox_label = ugettext_lazy('Clear')
+    template_name = "admin_async_upload/admin_file_input.html"
+    clear_checkbox_label = ugettext_lazy("Clear")
 
     def render(self, name, value, attrs=None, **kwargs):
         persistent_storage = ResumableStorage().get_persistent_storage()
@@ -28,46 +28,51 @@ class ResumableBaseWidget(FileInput):
             file_name = ""
             file_url = ""
 
-        chunk_size = getattr(settings, 'ADMIN_RESUMABLE_CHUNKSIZE', "1*1024*1024")
-        show_thumb = getattr(settings, 'ADMIN_RESUMABLE_SHOW_THUMB', False)
-        simultaneous_uploads = getattr(settings, 'ADMIN_SIMULTANEOUS_UPLOADS', 3)
+        chunk_size = getattr(settings, "ADMIN_RESUMABLE_CHUNKSIZE", "1*1024*1024")
+        show_thumb = getattr(settings, "ADMIN_RESUMABLE_SHOW_THUMB", False)
+        simultaneous_uploads = getattr(settings, "ADMIN_SIMULTANEOUS_UPLOADS", 3)
 
-        content_type_id = ContentType.objects.get_for_model(self.attrs['model']).id
+        content_type_id = ContentType.objects.get_for_model(self.attrs["model"]).id
 
         context = {
-            'name': name,
-            'value': value,
-            'id': attrs['id'],
-            'chunk_size': chunk_size,
-            'show_thumb': show_thumb,
-            'field_name': self.attrs['field_name'],
-            'content_type_id': content_type_id,
-            'file_url': file_url,
-            'file_name': file_name,
-            'simultaneous_uploads': simultaneous_uploads,
+            "name": name,
+            "value": value,
+            "id": attrs["id"],
+            "chunk_size": chunk_size,
+            "show_thumb": show_thumb,
+            "field_name": self.attrs["field_name"],
+            "content_type_id": content_type_id,
+            "file_url": file_url,
+            "file_name": file_name,
+            "simultaneous_uploads": simultaneous_uploads,
         }
 
         if not self.is_required:
-            template_with_clear = '<span class="clearable-file-input">%(clear)s ' \
-                                  '<label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label></span>'
-            substitutions = {
-                'clear_checkbox_id': attrs['id'] + "-clear-id",
-                'clear_checkbox_name': attrs['id'] + "-clear",
-                'clear_checkbox_label': self.clear_checkbox_label
-            }
-            substitutions['clear'] = CheckboxInput().render(
-                substitutions['clear_checkbox_name'],
-                False,
-                attrs={'id': substitutions['clear_checkbox_id']}
+            template_with_clear = (
+                '<span class="clearable-file-input">%(clear)s '
+                '<label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label></span>'
             )
+
+            substitutions = {
+                "clear_checkbox_id": attrs["id"] + "-clear-id",
+                "clear_checkbox_name": attrs["id"] + "-clear",
+                "clear_checkbox_label": self.clear_checkbox_label,
+            }
+
+            substitutions["clear"] = CheckboxInput().render(
+                substitutions["clear_checkbox_name"],
+                False,
+                attrs={"id": substitutions["clear_checkbox_id"]},
+            )
+
             clear_checkbox = mark_safe(template_with_clear % substitutions)
-            context.update({'clear_checkbox': clear_checkbox})
+            context.update({"clear_checkbox": clear_checkbox})
         return loader.render_to_string(self.template_name, context)
 
     def value_from_datadict(self, data, files, name):
         if not self.is_required and data.get("id_" + name + "-clear"):
             return False  # False signals to clear any existing value, as opposed to just None
-        if data.get(name, None) in ['None', 'False']:
+        if data.get(name, None) in ["None", "False"]:
             return None
         return data.get(name, None)
 
@@ -76,8 +81,10 @@ class ResumableAdminWidget(ResumableBaseWidget):
     @property
     def media(self):
         js = ["resumable.js"]
-        return forms.Media(js=[static("admin_resumable/js/%s" % path) for path in js])
+        return forms.Media(
+            js=[static("admin_async_upload/js/%s" % path) for path in js]
+        )
 
 
 class ResumableWidget(ResumableBaseWidget):
-    template_name = 'admin_resumable/user_file_input.html'
+    template_name = "admin_async_upload/user_file_input.html"
