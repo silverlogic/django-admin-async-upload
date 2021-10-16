@@ -8,10 +8,6 @@ from admin_async_upload.files import ResumableFile
 
 
 class UploadView(View):
-    @login_required()
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     @cached_property
     def request_data(self):
         return getattr(self.request, self.request.method)
@@ -54,3 +50,6 @@ class UploadView(View):
         if resumable_file.is_complete:
             return HttpResponse(resumable_file.collect())
         return HttpResponse("chunk exists")
+
+
+upload_view = login_required(UploadView.as_view())
