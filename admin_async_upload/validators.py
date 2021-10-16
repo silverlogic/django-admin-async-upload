@@ -33,7 +33,8 @@ class StorageFileValidator(object):
         self.max_size = max_size
         self.allowed_extensions = allowed_extensions or []
 
-    def get_storage(self):
+    @staticmethod
+    def get_storage():
         return ResumableStorage().get_persistent_storage()
 
     def validate_extension(self, value):
@@ -49,11 +50,7 @@ class StorageFileValidator(object):
 
     def validate_exists(self, value, storage):
         if not storage.exists(value):
-            message = self.messages["file"].format(
-                **{
-                    "name": value,
-                }
-            )
+            message = self.messages["file"].format(**{"name": value})
             raise ValidationError(message)
 
     def validate_size(self, value, storage):

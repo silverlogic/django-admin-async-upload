@@ -1,22 +1,17 @@
 {% load i18n %}
 <script>
 
-//check that variable exists
-if (typeof djangoAdminResumableFieldListenerSetUp=="undefined")
-{
-    {#  var is used instead of let to provide expected scope of view #}
+// Check that the djangoAdminResumableFieldListenerSetUp variable exist.
+if (typeof djangoAdminResumableFieldListenerSetUp == "undefined") {
   var djangoAdminResumableFieldListenerSetUp = false;
 }
 
 
 (function($) {
     function setupField(elementId) {
-
-        console.log('setting up '+ elementId);
-
         $('form').submit(function() {
             if($(this).hasClass(elementId + '_disabled')) {
-                alert("File upload is still in progress.")  //FIXME: fires several alerts for each file
+                alert("File upload is still in progress.")  // FIXME: fires several alerts for each file
                 return false;
             }
         });
@@ -24,7 +19,8 @@ if (typeof djangoAdminResumableFieldListenerSetUp=="undefined")
         if (!(new Resumable().support)) {
             alert("No uploader support");
         }
-        var r = new Resumable({
+
+        const resumable = new Resumable({
             target: '{% url 'admin_async_upload' %}',
             chunkSize: {{ chunk_size }},
             query: {
@@ -34,14 +30,17 @@ if (typeof djangoAdminResumableFieldListenerSetUp=="undefined")
             },
             simultaneousUploads: {{ simultaneous_uploads }}, //3 is better, 1 is used for local testing;
         });
-        r.assignBrowse($('#' + elementId + '_input_file'));
-        r.on('fileAdded', function(file) {
-            r.upload();
+
+        resumable.assignBrowse($('#' + elementId + '_input_file'));
+
+        resumable.on('fileAdded', function(file) {
+            resumable.upload();
             $("#" + elementId + "_uploaded_status").html(file.fileName + ' ⏳ Uploading... ');
             {#console.log(file)#}
             $("form").addClass(elementId + "_disabled");
         });
-        r.on('fileSuccess', function(file, message) {
+
+        resumable.on('fileSuccess', function(file, message) {
 
             ///check that the name of the file is returned and not "chunk uploaded"
             if(message.toLowerCase().includes("chunk uploaded"))
@@ -64,29 +63,25 @@ if (typeof djangoAdminResumableFieldListenerSetUp=="undefined")
             $("form").removeClass(elementId + "_disabled");
 
         });
-        r.on('fileError', function(file, message) {
+
+        resumable.on('fileError', function(file, message) {
             $("#" + elementId + "_uploaded_status").html(message);
         });
-        r.on('progress', function(file, message) {
-            let progress = r.progress();
-            if(progress==0)
-            {
-                //don't show 0 if there is any progress but server does not report actual progress
-                //show something at least so user won't be confused
-                progress=0.05;
-            }
+
+        resumable.on('progress', function(file, message) {
+            let progress = resumable.progress() || 0.05;
             $('#' + elementId + '_progress').val(progress);
         });
 
     }
 
-    //fire on DOMReady
+    // Fire on DOMReady
     $(function(){
-        //FIXME: don't execute if id contains "__prefix__" - django's placeholder for id
+        // FIXME: don't execute if id contains "__prefix__" - django's placeholder for id
         setupField('{{ id }}');
     });
 
-    //should be set up once
+    // Should be set up once
     if(!djangoAdminResumableFieldListenerSetUp)
     {
         //setup admin inline creation listener so we can get the id of created fields instead

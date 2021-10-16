@@ -1,4 +1,5 @@
 from django.db import models
+
 from admin_async_upload.widgets import ResumableAdminWidget
 from admin_async_upload.fields import FormResumableFileField
 

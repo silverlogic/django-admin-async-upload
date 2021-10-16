@@ -12,7 +12,8 @@
         if (!(new Resumable().support)) {
             alert("No uploader support");
         }
-        var r = new Resumable({
+
+        const resumable = new Resumable({
             target: '{% url 'admin_async_upload' %}',
             chunkSize: {{ chunk_size }},
             query: {
@@ -21,23 +22,28 @@
                 content_type_id: '{{ content_type_id }}'
             },
         });
-        r.assignBrowse($('#{{ id }}_input_file'));
-        r.on('fileAdded', function(file) {
+
+        resumable.assignBrowse($('#{{ id }}_input_file'));
+
+        resumable.on('fileAdded', function(file) {
             $("#{{ id }}_uploaded_status").html("{% trans 'Uploading' %} " + file.fileName);
             $("form").addClass("{{ name }}_disabled");
-            r.upload();
+            resumable.upload();
         });
-        r.on('fileSuccess', function(file, message) {
+
+        resumable.on('fileSuccess', function(file, message) {
             $('#{{ id }}').val(message);
             $("#{{ id }}_uploaded_status").html("{% trans 'File uploaded' %}: " + file.fileName);
             $("#{{ id }}_input_file").css("display", "none");
             $("form").removeClass("{{ name }}_disabled");
         });
-        r.on('fileError', function(file, message) {
+
+        resumable.on('fileError', function(file, message) {
             $("#{{ id }}_uploaded_status").html(message);
         });
-        r.on('progress', function(file, message) {
-            $('#{{ id }}_progress').val(r.progress());
+
+        resumable.on('progress', function(file, message) {
+            $('#{{ id }}_progress').val(resumable.progress());
         });
 
     });

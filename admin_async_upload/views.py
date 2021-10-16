@@ -8,7 +8,9 @@ from admin_async_upload.files import ResumableFile
 
 
 class UploadView(View):
-    # inspired by another fork https://github.com/fdemmer/django-admin-resumable-js
+    @login_required()
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     @cached_property
     def request_data(self):
@@ -19,30 +21,36 @@ class UploadView(View):
         content_type = ContentType.objects.get_for_id(
             self.request_data["content_type_id"]
         )
+
         return content_type.model_class()._meta.get_field(
             self.request_data["field_name"]
         )
 
     def post(self, request, *args, **kwargs):
         chunk = request.FILES.get("file")
-        r = ResumableFile(
-            self.model_upload_field, user=request.user, params=request.POST
+        resumable_file = ResumableFile(
+            self.model_upload_field,
+            user=request.user,
+            params=request.POST,
         )
-        if not r.chunk_exists:
-            r.process_chunk(chunk)
-        if r.is_complete:
-            return HttpResponse(r.collect())
+
+        if not resumable_file.chunk_exists:
+            resumable_file.process_chunk(chunk)
+
+        if resumable_file.is_complete:
+            return HttpResponse(resumable_file.collect())
         return HttpResponse("chunk uploaded")
 
     def get(self, request, *args, **kwargs):
-        r = ResumableFile(
-            self.model_upload_field, user=request.user, params=request.GET
+        resumable_file = ResumableFile(
+            self.model_upload_field,
+            user=request.user,
+            params=request.GET,
         )
-        if not r.chunk_exists:
+
+        if not resumable_file.chunk_exists:
             return HttpResponse("chunk not found", status=204)
-        if r.is_complete:
-            return HttpResponse(r.collect())
+
+        if resumable_file.is_complete:
+            return HttpResponse(resumable_file.collect())
         return HttpResponse("chunk exists")
-
-
-admin_resumable = login_required(UploadView.as_view())
