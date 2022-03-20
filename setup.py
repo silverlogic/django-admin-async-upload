@@ -8,7 +8,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name="django-admin-async-upload",
-    version="3.0.4",
+    version="3.0.5",
     packages=["admin_async_upload"],
     include_package_data=True,
     package_data={
@@ -36,7 +36,7 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     ],
     install_requires=[
-        "Django>=3.0",
+        "Django>=4.0",
     ],
     tests_require=[
         "pytest-django",

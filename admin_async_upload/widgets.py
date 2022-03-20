@@ -5,14 +5,14 @@ from django.forms import FileInput, CheckboxInput, forms
 from django.template import loader
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import gettext_lazy as _
 
 from admin_async_upload.storage import ResumableStorage
 
 
 class ResumableBaseWidget(FileInput):
     template_name = "admin_async_upload/admin_file_input.html"
-    clear_checkbox_label = ugettext_lazy("Clear")
+    clear_checkbox_label = _("Clear")
 
     def render(self, name, value, attrs=None, **kwargs):
         persistent_storage = ResumableStorage().get_persistent_storage()
