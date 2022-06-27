@@ -36,7 +36,7 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     ],
     install_requires=[
-        "Django>=4.0",
+        "Django>=3.0",
     ],
     tests_require=[
         "pytest-django",
