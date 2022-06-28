@@ -1,7 +1,9 @@
 import datetime
 import posixpath
+import tempfile
+import os
 
-from django.core.files.storage import get_storage_class, Storage
+from django.core.files.storage import get_storage_class, Storage, FileSystemStorage
 from django.conf import settings
 from django.utils.encoding import force_str
 
@@ -19,7 +21,7 @@ class ResumableStorage(Storage):
         self.chunk_storage_class_name = getattr(
             settings,
             "ADMIN_RESUMABLE_CHUNK_STORAGE",
-            "django.core.files.storage.FileSystemStorage",
+            "admin_async_upload.storage.TempFileSystemStorage",
         )
 
     def get_chunk_storage(self, *args, **kwargs):
@@ -49,3 +51,24 @@ class ResumableStorage(Storage):
             dirname = force_str(datetime.datetime.now().strftime(force_str(upload_to)))
             filename = posixpath.join(dirname, filename)
         return self.get_persistent_storage().generate_filename(filename)
+
+
+class TempFileSystemStorage(FileSystemStorage):
+    def __init__(self,
+        location=None,
+        base_url=None,
+        file_permissions_mode=None,
+        directory_permissions_mode=None
+    ):
+        if not location:
+            location = os.path.join(tempfile.gettempdir(), 'django_async_upload')
+            try:
+                os.mkdir(location)
+            except FileExistsError:
+                pass
+        super().__init__(
+            location=location,
+            base_url=base_url,
+            file_permissions_mode=file_permissions_mode,
+            directory_permissions_mode=directory_permissions_mode
+        )
