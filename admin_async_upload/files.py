@@ -60,9 +60,9 @@ class ResumableFile:
         """
         chunks = []
         files = sorted(self.chunk_storage.listdir("")[1])
-        for file in files:
-            if fnmatch.fnmatch(file, "%s%s*" % (self.filename, self.chunk_suffix)):
-                chunks.append(file)
+        for file_name in files:
+            if file_name.startswith("%s%s" % (self.filename, self.chunk_suffix)):
+                chunks.append(file_name)
         return chunks
 
     @property
